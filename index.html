@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Contact Info</title>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDwm7uKzonqizwpZb5CCK3Wqhiicu4-Ad0",
+        authDomain: "camfall-fa82f.firebaseapp.com",
+        databaseURL: "https://camfall-fa82f-default-rtdb.firebaseio.com",
+        projectId: "camfall-fa82f",
+        storageBucket: "camfall-fa82f.appspot.com",
+        messagingSenderId: "57571517627",
+        appId: "1:57571517627:web:4ef7c495afd5f53e1bb59e",
+        measurementId: "G-4LK1R13S0W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('contactForm');
+        const urlParams = new URLSearchParams(window.location.search);
+        const referenceNumber = urlParams.get('reference_number'); // Get reference number from URL
+
+        if (!referenceNumber) {
+            alert('Invalid or missing reference number.');
+            return;
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            if (email === '' && phone === '') {
+                alert('Please provide either email or phone number.');
+                return;
+            }
+
+            try {
+                const reference = ref(database, referenceNumber);
+                const snapshot = await get(reference);
+
+                if (snapshot.exists()) {
+                    await set(reference, { email, phoneNumber: phone });
+                    console.log('Data updated successfully.');
+                } else {
+                    alert('Reference number not found.');
+                }
+            } catch (error) {
+                console.error('Failed to update data:', error);
+            }
+        });
+    });
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f7;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="contactForm">
+        <h2>Submit Information</h2>
+
+        <label for="contact-info">Contact Information (Email or Phone):</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email">
+        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
